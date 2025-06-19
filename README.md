@@ -25,7 +25,7 @@ jobs:
   add-reaction:
     runs-on: ubuntu-latest
     steps:
-      - uses: your-username/action-add-reaction@v1
+      - uses: pelikhan/action-add-reaction@v0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           # Optional: override the default 'eyes' reaction
