@@ -4,9 +4,6 @@ set -e
 # This script creates a new GitHub release by incrementing the patch version
 # and updates the vmajor tag to point to the latest release.
 
-# Ensure we're in the repository root
-cd "$(dirname "$0")/.."
-
 # Check if git is clean
 if [ -n "$(git status --porcelain)" ]; then
   echo "Error: Working directory is not clean. Please commit all changes before releasing."
