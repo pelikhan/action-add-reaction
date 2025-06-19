@@ -1,7 +1,9 @@
 #!/bin/sh
+# Exit script if any command fails
+set -e
 
 # make sure there's no other changes
-git pull
+git pull --tags
 
 # Step 0: ensure we're in sync
 if [ "$(git status --porcelain)" ]; then
@@ -21,7 +23,7 @@ fi
 
 # Validate that the version follows semver format (x.y.z)
 if ! echo "$NEW_VERSION" | grep -E '^v?[0-9]+\.[0-9]+\.[0-9]+$' > /dev/null; then
-  echo "❌ Invalid version format. Expected: x.y.z"
+  echo "❌ Invalid version format. Expected: v?x.y.z"
   exit 1
 fi
 
