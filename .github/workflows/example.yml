@@ -12,6 +12,7 @@ jobs:
   add-reaction:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - name: Add eyes reaction
         uses: ./
         with:
