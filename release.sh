@@ -1,3 +1,4 @@
+#!/bin/sh
 
 # make sure there's no other changes
 git pull
@@ -9,7 +10,27 @@ if [ "$(git status --porcelain)" ]; then
 fi
 
 # Step 1: Bump patch version using npm
-NEW_VERSION=$(npm version patch -m "chore: bump version to %s")
+# Assign the first CLI argument to version
+NEW_VERSION="$1"
+
+# Ensure a version was provided
+if [ -z "$NEW_VERSION" ]; then
+  echo "❌ No version specified. Usage: ./release.sh <version>"
+  exit 1
+fi
+
+# Validate that the version follows semver format (x.y.z)
+if ! echo "$NEW_VERSION" | grep -E '^v?[0-9]+\.[0-9]+\.[0-9]+$' > /dev/null; then
+  echo "❌ Invalid version format. Expected: x.y.z"
+  exit 1
+fi
+
+# Strip leading 'v' if present
+NEW_VERSION=$(echo "$NEW_VERSION" | sed 's/^v//')
+
+# Tag the version
+git tag -a "v$NEW_VERSION" -m "Release v$NEW_VERSION"
+NEW_VERSION=
 echo "version: $NEW_VERSION"
 
 # Step 2: Push commit and tag
