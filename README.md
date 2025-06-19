@@ -4,20 +4,12 @@ A GitHub Action that adds an eyes reaction (👀) to the current issue or pull r
 
 ## Usage
 
-Add this action to your workflow file:
+You can add this action in any of your workflows to quickly
+add a `eyes` reaction to issues or pull requests when they are opened, reopened, or edited. It's an immediate user feedback.
+
+Support `issues`, `pull_request`, `issue_comment`, and `pull_request_review_comment` events.
 
 ```yaml
-name: Add Eyes Reaction
-
-on:
-  issues:
-    types: [opened, reopened, edited]
-  pull_request:
-    types: [opened, reopened, edited]
-  issue_comment:
-    types: [created, edited]
-  pull_request_review_comment:
-    types: [created, edited]
 permissions:
   issues: write
   pull-requests: write
@@ -26,11 +18,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: pelikhan/action-add-reaction@v0
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          # Optional: override the default 'eyes' reaction
-          # reaction: heart
 ```
+
+If you already have existing steps in your workflow,
+it is recommended to keep the add-reaction separate
+so that it executes instantly rather than waiting
+for containers to be built.
 
 ## Inputs
 
