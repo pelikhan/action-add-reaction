@@ -22,16 +22,13 @@ if [ -z "$NEW_VERSION" ]; then
 fi
 
 # Validate that the version follows semver format (x.y.z)
-if ! echo "$NEW_VERSION" | grep -E '^v?[0-9]+\.[0-9]+\.[0-9]+$' > /dev/null; then
-  echo "❌ Invalid version format. Expected: v?x.y.z"
+if ! echo "$NEW_VERSION" | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' > /dev/null; then
+  echo "❌ Invalid version format. Expected: vx.y.z"
   exit 1
 fi
 
-# Strip leading 'v' if present
-NEW_VERSION=$(echo "$NEW_VERSION" | sed 's/^v//')
-
 # Tag the version
-git tag -a "v$NEW_VERSION" -m "Release v$NEW_VERSION"
+git tag -a "$NEW_VERSION" -m "Release $NEW_VERSION"
 echo "version: $NEW_VERSION"
 
 # Step 2: Push commit and tag
@@ -43,7 +40,7 @@ gh release create "$NEW_VERSION" --title "$NEW_VERSION" --notes "Patch release $
 # Step 4: update major tag if any
 MAJOR=$(echo "$NEW_VERSION" | cut -d. -f1)
 echo "major: $MAJOR"
-git tag -f $MAJOR $NEW_VERSION
-git push origin $MAJOR --force
+git tag -f "$MAJOR" "$NEW_VERSION"
+git push origin "$MAJOR" --force
 
 echo "✅ GitHub release $NEW_VERSION created successfully."
