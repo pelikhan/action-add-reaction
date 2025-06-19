@@ -18,8 +18,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: pelikhan/action-add-reaction@v0
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 If you already have existing steps in your workflow,
