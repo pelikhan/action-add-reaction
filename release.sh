@@ -32,7 +32,6 @@ NEW_VERSION=$(echo "$NEW_VERSION" | sed 's/^v//')
 
 # Tag the version
 git tag -a "v$NEW_VERSION" -m "Release v$NEW_VERSION"
-NEW_VERSION=
 echo "version: $NEW_VERSION"
 
 # Step 2: Push commit and tag
