@@ -11,9 +11,13 @@ name: Add Eyes Reaction
 
 on:
   issues:
-    types: [opened]
+    types: [opened, reopened, edited]
   pull_request:
-    types: [opened]
+    types: [opened, reopened, edited]
+  issue_comment:
+    types: [created, edited]
+  pull_request_review_comment:
+    types: [created, edited]
 permissions:
   issues: write
   pull-requests: write
