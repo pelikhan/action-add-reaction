@@ -4,8 +4,9 @@ author: 'pelikhan'
 
 inputs:
   token:
-    description: 'GitHub token used to add reactions.'
-    required: true
+    description: GitHub token or PAT with the permissions this action needs
+    default: ${{ github.token }}
+    required: false
   reaction:
     description: 'Type of reaction to add (defaults to eyes)'
     required: false

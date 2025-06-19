@@ -17,5 +17,3 @@ jobs:
     steps:
       - name: Add eyes reaction
         uses: pelikhan/action-add-reaction@main
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
