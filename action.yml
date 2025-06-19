@@ -20,10 +20,48 @@ runs:
         GH_TOKEN: ${{ inputs.token }}
         REACTION: ${{ inputs.reaction }}
       run: |
+        # Extract the issue or PR number from the GITHUB_REF
+        if [[ "$GITHUB_REF" == *"/pull/"* ]]; then
+          NUMBER=$(echo $GITHUB_REF | sed 's/.*\/pull\/\([0-9]*\).*/\1/')
+          TYPE="pulls"
+        else
+          NUMBER=$(echo $GITHUB_REF | sed 's/.*\/issues\/\([0-9]*\).*/\1/')
+          TYPE="issues"
+        fi
+        
+        # If we couldn't extract a number, try using GITHUB_EVENT_PATH
+        if [[ -z "$NUMBER" || "$NUMBER" == "$GITHUB_REF" ]]; then
+          if [[ -f "$GITHUB_EVENT_PATH" ]]; then
+            if jq -e '.issue.number' "$GITHUB_EVENT_PATH" > /dev/null 2>&1; then
+              NUMBER=$(jq -r '.issue.number' "$GITHUB_EVENT_PATH")
+              TYPE="issues"
+            elif jq -e '.pull_request.number' "$GITHUB_EVENT_PATH" > /dev/null 2>&1; then
+              NUMBER=$(jq -r '.pull_request.number' "$GITHUB_EVENT_PATH")
+              TYPE="pulls"
+            elif jq -e '.number' "$GITHUB_EVENT_PATH" > /dev/null 2>&1; then
+              NUMBER=$(jq -r '.number' "$GITHUB_EVENT_PATH")
+              # Determine if this is an issue or PR based on presence of pull_request field
+              if jq -e '.pull_request' "$GITHUB_EVENT_PATH" > /dev/null 2>&1; then
+                TYPE="pulls"
+              else
+                TYPE="issues"
+              fi
+            fi
+          fi
+        fi
+        
+        # Fallback to issue_number or pr_number inputs if available
+        if [[ -z "$NUMBER" || "$NUMBER" == "$GITHUB_REF" ]]; then
+          echo "Could not determine issue or PR number from context."
+          exit 1
+        fi
+        
+        echo "Adding $REACTION reaction to $TYPE #$NUMBER"
+        
         gh api \
           --method POST \
-          repos/${{ github.repository }}/issues/${{ githut.context.issue.number || github.context.pull_request.number }}/reactions \
-          -f content="${{ github.event.inputs.reaction || 'eyes' }}" \
+          repos/${{ github.repository }}/$TYPE/$NUMBER/reactions \
+          -f content="${REACTION}"
 
 branding:
   icon: 'eye'
