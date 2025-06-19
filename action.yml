@@ -20,8 +20,9 @@ runs:
         GH_TOKEN: ${{ inputs.token }}
         REACTION: ${{ inputs.reaction }}
       run: |
-        # For debugging
         echo "Event path: $GITHUB_EVENT_PATH"
+        echo "Event content:"
+        cat "$GITHUB_EVENT_PATH" | jq '.'
 
         # Try to extract the comment ID from issue_comment events
         if jq -e '.comment.id' "$GITHUB_EVENT_PATH" > /dev/null 2>&1; then
