@@ -4,7 +4,7 @@ author: 'pelikhan'
 
 inputs:
   token:
-    description: 'GitHub token used to add reactions. `${{ secrets.GITHUB_TOKEN }}'
+    description: 'GitHub token used to add reactions.'
     required: true
   reaction:
     description: 'Type of reaction to add (defaults to eyes)'
