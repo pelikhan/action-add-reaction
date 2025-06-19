@@ -14,7 +14,9 @@ on:
     types: [opened]
   pull_request:
     types: [opened]
-
+permissions:
+  issues: write
+  pull-requests: write
 jobs:
   add-reaction:
     runs-on: ubuntu-latest
