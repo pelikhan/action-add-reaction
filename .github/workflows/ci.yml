@@ -14,6 +14,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Add eyes reaction
-        uses: pelikhan/action-add-reaction@main
+        uses: ./
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
