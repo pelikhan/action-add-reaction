@@ -1,0 +1,30 @@
+name: 'Add Eyes Reaction'
+description: 'Adds an eyes reaction to the current issue or pull request'
+author: 'pelikhan'
+
+inputs:
+  token:
+    description: 'GitHub token used to add reactions. `${{ secrets.GITHUB_TOKEN }}'
+    required: true
+  reaction:
+    description: 'Type of reaction to add (defaults to eyes)'
+    required: false
+    default: 'eyes'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Add reaction
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+        REACTION: ${{ inputs.reaction }}
+      run: |
+        gh api \
+          --method POST \
+          repos/${{ github.repository }}/issues/${{ githut.context.issue.number || github.context.pull_request.number }}/reactions \
+          -f content="${{ github.event.inputs.reaction || 'eyes' }}" \
+
+branding:
+  icon: 'eye'
+  color: 'blue'

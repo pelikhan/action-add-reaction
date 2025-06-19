@@ -1,0 +1,14 @@
+name: Example Workflow
+on:
+  issues:
+    types: [opened]
+  pull_request:
+    types: [opened]
+jobs:
+  add-reaction:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add eyes reaction
+        uses: ./
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
