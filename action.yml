@@ -20,6 +20,24 @@ runs:
         GH_TOKEN: ${{ inputs.token }}
         REACTION: ${{ inputs.reaction }}
       run: |
+        # For debugging
+        echo "Event path: $GITHUB_EVENT_PATH"
+
+        # Try to extract the comment ID from issue_comment events
+        if jq -e '.comment.id' "$GITHUB_EVENT_PATH" > /dev/null 2>&1; then
+          COMMENT_ID=$(jq -r '.comment.id' "$GITHUB_EVENT_PATH")
+          NUMBER=$(jq -r '.issue.number' "$GITHUB_EVENT_PATH")
+          
+          if [[ ! -z "$COMMENT_ID" && ! -z "$NUMBER" ]]; then
+            echo "Adding $REACTION reaction to comment $COMMENT_ID on issue #$NUMBER"
+            gh api \
+              --method POST \
+              repos/$GITHUB_REPOSITORY/issues/comments/$COMMENT_ID/reactions \
+              -f content="${REACTION}"
+            exit 0
+          fi
+        fi
+
         if jq -e '.issue.number' "$GITHUB_EVENT_PATH" > /dev/null 2>&1; then
           NUMBER=$(jq -r '.issue.number' "$GITHUB_EVENT_PATH")
           TYPE="issues"
