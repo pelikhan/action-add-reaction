@@ -1,6 +1,6 @@
 # Add Eyes Reaction Action
 
-A GitHub Action that adds an eyes reaction (👀) to the current issue or pull request.
+A GitHub Action that adds an 👀 reaction to the current issue, pull request or comment.
 
 ## Usage
 
@@ -13,8 +13,8 @@ Support `issues`, `pull_request`, `pull_request_target`, `issue_comment`, and `p
 jobs:
   add-reaction:
     permissions:
-      issues: write
-      pull-requests: write
+      issues: write # needed for issues, issues_comment
+      pull-requests: write # needed for pull_request, pull_request_target, pull_request_review_comment
     runs-on: ubuntu-latest
     steps:
       - uses: pelikhan/action-add-reaction@v0
