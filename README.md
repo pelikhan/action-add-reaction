@@ -21,7 +21,7 @@ jobs:
 ```
 
 If you already have existing steps in your workflow,
-it is recommended to keep the add-reaction separate
+it is recommended to keep the `add-reaction` job separate
 so that it executes instantly rather than waiting
 for containers to be built.
 
