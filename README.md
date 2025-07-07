@@ -10,11 +10,11 @@ add a `eyes` reaction to issues or pull requests when they are opened, reopened,
 Support `issues`, `pull_request`, `pull_request_target`, `issue_comment`, and `pull_request_review_comment` events.
 
 ```yaml
-permissions:
-  issues: write
-  pull-requests: write
 jobs:
   add-reaction:
+    permissions:
+      issues: write
+      pull-requests: write
     runs-on: ubuntu-latest
     steps:
       - uses: pelikhan/action-add-reaction@v0

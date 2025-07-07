@@ -10,11 +10,11 @@ on:
     types: [created, edited]
   pull_request_target:
     types: [opened, reopened, edited]
-permissions:
-  issues: write
-  pull-requests: write
 jobs:
   add-reaction:
+    permissions:
+      issues: write
+      pull-requests: write
     runs-on: ubuntu-latest
     steps:
       - name: Add eyes reaction
