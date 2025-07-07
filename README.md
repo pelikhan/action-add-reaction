@@ -7,7 +7,7 @@ A GitHub Action that adds an eyes reaction (👀) to the current issue or pull r
 You can add this action in any of your workflows to quickly
 add a `eyes` reaction to issues or pull requests when they are opened, reopened, or edited. It's an immediate user feedback.
 
-Support `issues`, `pull_request`, `issue_comment`, and `pull_request_review_comment` events.
+Support `issues`, `pull_request`, `pull_request_target`, `issue_comment`, and `pull_request_review_comment` events.
 
 ```yaml
 permissions:
