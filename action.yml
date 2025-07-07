@@ -46,16 +46,16 @@ runs:
           TYPE="issues"
         elif jq -e '.pull_request.number' "$GITHUB_EVENT_PATH" > /dev/null 2>&1; then
           NUMBER=$(jq -r '.pull_request.number' "$GITHUB_EVENT_PATH")
-          TYPE="pulls"
+          TYPE="issues"
         elif [[ "$GITHUB_EVENT_NAME" == "pull_request_target" ]] && jq -e '.pull_request.number' "$GITHUB_EVENT_PATH" > /dev/null 2>&1; then
           # Handle pull_request_target events, which have the same structure as pull_request events
           NUMBER=$(jq -r '.pull_request.number' "$GITHUB_EVENT_PATH")
-          TYPE="pulls"
+          TYPE="issues"
         elif jq -e '.number' "$GITHUB_EVENT_PATH" > /dev/null 2>&1; then
           NUMBER=$(jq -r '.number' "$GITHUB_EVENT_PATH")
           # Determine if this is an issue or PR based on presence of pull_request field
           if jq -e '.pull_request' "$GITHUB_EVENT_PATH" > /dev/null 2>&1; then
-            TYPE="pulls"
+            TYPE="issues"
           else
             TYPE="issues"
           fi
@@ -67,12 +67,13 @@ runs:
           exit 1
         fi
         
-        echo "Adding $REACTION reaction to $TYPE #$NUMBER"
+        echo "Adding $REACTION reaction to $GITHUB_REPOSITORY $TYPE #$NUMBER"
         
         gh api \
           --method POST \
           repos/$GITHUB_REPOSITORY/$TYPE/$NUMBER/reactions \
-          -f content="${REACTION}"
+          -f content="${REACTION}" \
+          --verbose
 
 branding:
   icon: 'eye'
