@@ -22,6 +22,7 @@ runs:
         REACTION: ${{ inputs.reaction }}
       run: |
         echo "Event path: $GITHUB_EVENT_PATH"
+        echo "Event name: $GITHUB_EVENT_NAME"
         echo "Event content:"
         cat "$GITHUB_EVENT_PATH" | jq '.'
 
@@ -44,6 +45,10 @@ runs:
           NUMBER=$(jq -r '.issue.number' "$GITHUB_EVENT_PATH")
           TYPE="issues"
         elif jq -e '.pull_request.number' "$GITHUB_EVENT_PATH" > /dev/null 2>&1; then
+          NUMBER=$(jq -r '.pull_request.number' "$GITHUB_EVENT_PATH")
+          TYPE="pulls"
+        elif [[ "$GITHUB_EVENT_NAME" == "pull_request_target" ]] && jq -e '.pull_request.number' "$GITHUB_EVENT_PATH" > /dev/null 2>&1; then
+          # Handle pull_request_target events, which have the same structure as pull_request events
           NUMBER=$(jq -r '.pull_request.number' "$GITHUB_EVENT_PATH")
           TYPE="pulls"
         elif jq -e '.number' "$GITHUB_EVENT_PATH" > /dev/null 2>&1; then
