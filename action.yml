@@ -1,5 +1,5 @@
 name: 'Add Eyes Reaction'
-description: 'Adds an eyes reaction to the current issue or pull request'
+description: 'Adds an eyes reaction to the current issue or pull request, then removes it at the end'
 author: 'pelikhan'
 
 inputs:
@@ -16,6 +16,7 @@ runs:
   using: 'composite'
   steps:
     - name: Add reaction
+      id: add-reaction
       shell: bash
       env:
         GH_TOKEN: ${{ inputs.token }}
@@ -23,58 +24,56 @@ runs:
       run: |
         echo "Event path: $GITHUB_EVENT_PATH"
         echo "Event name: $GITHUB_EVENT_NAME"
-        echo "Event content:"
         cat "$GITHUB_EVENT_PATH" | jq '.'
 
-        # Try to extract the comment ID from issue_comment events
         if jq -e '.comment.id' "$GITHUB_EVENT_PATH" > /dev/null 2>&1; then
           COMMENT_ID=$(jq -r '.comment.id' "$GITHUB_EVENT_PATH")
           NUMBER=$(jq -r '.issue.number' "$GITHUB_EVENT_PATH")
-          
-          if [[ ! -z "$COMMENT_ID" && ! -z "$NUMBER" ]]; then
-            echo "Adding $REACTION reaction to comment $COMMENT_ID on issue #$NUMBER"
-            gh api \
+          if [[ -n "$COMMENT_ID" && -n "$NUMBER" ]]; then
+            echo "Adding $REACTION reaction to comment $COMMENT_ID"
+            REACTION_RESPONSE=$(gh api \
               --method POST \
               repos/$GITHUB_REPOSITORY/issues/comments/$COMMENT_ID/reactions \
-              -f content="${REACTION}"
+              -f content="${REACTION}")
+            echo "$REACTION_RESPONSE" | jq '.' > reaction.json
+            echo "reaction_id=$(jq -r '.id' reaction.json)" >> $GITHUB_OUTPUT
             exit 0
           fi
         fi
 
         if jq -e '.issue.number' "$GITHUB_EVENT_PATH" > /dev/null 2>&1; then
           NUMBER=$(jq -r '.issue.number' "$GITHUB_EVENT_PATH")
-          TYPE="issues"
         elif jq -e '.pull_request.number' "$GITHUB_EVENT_PATH" > /dev/null 2>&1; then
           NUMBER=$(jq -r '.pull_request.number' "$GITHUB_EVENT_PATH")
-          TYPE="issues"
-        elif [[ "$GITHUB_EVENT_NAME" == "pull_request_target" ]] && jq -e '.pull_request.number' "$GITHUB_EVENT_PATH" > /dev/null 2>&1; then
-          # Handle pull_request_target events, which have the same structure as pull_request events
-          NUMBER=$(jq -r '.pull_request.number' "$GITHUB_EVENT_PATH")
-          TYPE="issues"
         elif jq -e '.number' "$GITHUB_EVENT_PATH" > /dev/null 2>&1; then
           NUMBER=$(jq -r '.number' "$GITHUB_EVENT_PATH")
-          # Determine if this is an issue or PR based on presence of pull_request field
-          if jq -e '.pull_request' "$GITHUB_EVENT_PATH" > /dev/null 2>&1; then
-            TYPE="issues"
-          else
-            TYPE="issues"
-          fi
         fi
-        
-        # Fallback to issue_number or pr_number inputs if available
-        if [[ -z "$NUMBER" || "$NUMBER" == "$GITHUB_REF" ]]; then
-          echo "Could not determine issue or PR number from context."
+
+        if [[ -z "$NUMBER" ]]; then
+          echo "Could not determine issue or PR number."
           exit 1
         fi
-        
-        echo "Adding $REACTION reaction to $GITHUB_REPOSITORY $TYPE #$NUMBER"
-        
-        gh api \
-          --method POST \
-          repos/$GITHUB_REPOSITORY/$TYPE/$NUMBER/reactions \
-          -f content="${REACTION}" \
-          --verbose
 
-branding:
-  icon: 'eye'
-  color: 'blue'
+        echo "Adding $REACTION reaction to issue/PR #$NUMBER"
+        REACTION_RESPONSE=$(gh api \
+          --method POST \
+          repos/$GITHUB_REPOSITORY/issues/$NUMBER/reactions \
+          -f content="${REACTION}")
+        echo "$REACTION_RESPONSE" | jq '.' > reaction.json
+        echo "reaction_id=$(jq -r '.id' reaction.json)" >> $GITHUB_OUTPUT
+
+    - name: Remove reaction
+      if: always()
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+      run: |
+        if [[ -f reaction.json ]]; then
+          REACTION_ID=$(jq -r '.id' reaction.json)
+          echo "Removing reaction with ID $REACTION_ID"
+          gh api \
+            --method DELETE \
+            repos/$GITHUB_REPOSITORY/reactions/$REACTION_ID
+        else
+          echo "No reaction.json file found. Skipping removal."
+        fi
