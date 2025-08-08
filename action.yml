@@ -54,4 +54,26 @@ runs:
           exit 1
         fi
 
-        echo "Adding $REACTION reaction to issue
+        echo "Adding $REACTION reaction to issue/PR #$NUMBER"
+        REACTION_RESPONSE=$(gh api \
+          --method POST \
+          repos/$GITHUB_REPOSITORY/issues/$NUMBER/reactions \
+          -f content="${REACTION}")
+        echo "$REACTION_RESPONSE" | jq '.' > reaction.json
+        echo "reaction_id=$(jq -r '.id' reaction.json)" >> $GITHUB_OUTPUT
+
+    - name: Remove reaction
+      if: always()
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+      run: |
+        if [[ -f reaction.json ]]; then
+          REACTION_ID=$(jq -r '.id' reaction.json)
+          echo "Removing reaction with ID $REACTION_ID"
+          gh api \
+            --method DELETE \
+            repos/$GITHUB_REPOSITORY/reactions/$REACTION_ID
+        else
+          echo "No reaction.json file found. Skipping removal."
+        fi
